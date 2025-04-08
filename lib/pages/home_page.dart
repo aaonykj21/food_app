@@ -12,6 +12,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final PageController _controller = PageController();
+  final PageController _savoryPageController = PageController();
+  final PageController _dessertPageController = PageController();
   int _currentIndex = 0;
   List<dynamic> savoryfood = [];
   List<dynamic> dessert = [];
@@ -33,24 +35,23 @@ class _HomePageState extends State<HomePage> {
         throw Exception("Failed to load products");
       }
       var dessertResponse = await http.get(
-      Uri.parse('http://10.0.2.2:3000/dessert'),
-    );
-    if (dessertResponse.statusCode == 200) {
-      // ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
-      String dessertBody = utf8.decode(dessertResponse.bodyBytes);
-      List<dynamic> dessertList = jsonDecode(dessertBody);
-      setState(() {
-        dessert = dessertList; // อัปเดตข้อมูล dessert
-      });
-    } else {
-      throw Exception("Failed to load dessert");
-    }
+        Uri.parse('http://10.0.2.2:3000/dessert'),
+      );
+      if (dessertResponse.statusCode == 200) {
+        // ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
+        String dessertBody = utf8.decode(dessertResponse.bodyBytes);
+        List<dynamic> dessertList = jsonDecode(dessertBody);
+        setState(() {
+          dessert = dessertList; // อัปเดตข้อมูล dessert
+        });
+      } else {
+        throw Exception("Failed to load dessert");
+      }
     } catch (e) {
       //ถ้าเกิดข้อผิดพลาด → catch (e) จะจับ error และพิมพ์ออกมาใน console
       print(e);
     }
   }
-  
 
   @override
   void initState() {
@@ -150,8 +151,8 @@ class _HomePageState extends State<HomePage> {
                   // TabBar at the bottom of the screen
                   TabBar(
                     tabs: const [
-                      Tab(text: "ของคาว 🍲"),
-                      Tab(text: "ของหวาน 🍰"),
+                      Tab(text: "อาหารคาว 🍲"),
+                      Tab(text: "อาหารหวาน 🍰"),
                     ],
                     indicatorColor: Colors.red,
                     labelColor: Colors.red,
@@ -161,24 +162,78 @@ class _HomePageState extends State<HomePage> {
                     child: TabBarView(
                       children: [
                         // First tab content (อาหารคาว)
-                        ListView.separated(
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const Divider(),
+                        ListView.builder(
+                          scrollDirection: Axis.horizontal, // เลื่อนในแนวนอน
                           itemCount: savoryfood.length,
                           itemBuilder: (context, index) {
                             var savory = savoryfood[index];
-                            return ListTile(
-                              title: Text(savory['name']),
+                            return Container(
+                              height: 200, // กำหนดขนาดให้เหมาะสม
+                              width: 200, // กำหนดขนาดให้เหมาะสม
+                              margin: EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: PageView(
+                                scrollDirection:
+                                    Axis.horizontal, // เลื่อนในแนวนอน
+                                controller:
+                                    _savoryPageController, // ใช้ controller สำหรับ savory
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentIndex = index;
+                                  });
+                                },
+                                children: [
+                                  // Page 1: Image
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      image: DecorationImage(
+                                        image: NetworkImage(savory['image']),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
-                        // Second tab content (ของหวาน)
                         ListView.builder(
+                          scrollDirection: Axis.horizontal, // เลื่อนในแนวนอน
                           itemCount: dessert.length,
                           itemBuilder: (context, index) {
                             var dessertfood = dessert[index];
-                            return ListTile(
-                              title: Text(dessertfood['name']),
+                            return Container(
+                              height: 200, // กำหนดขนาดให้เหมาะสม
+                              width: 200, // กำหนดขนาดให้เหมาะสม
+                              margin: EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: PageView(
+                                scrollDirection:
+                                    Axis.horizontal, // เลื่อนในแนวนอน
+                                controller:
+                                    _dessertPageController, // ใช้ controller สำหรับ savory
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentIndex = index;
+                                  });
+                                },
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      image: DecorationImage(
+                                        image: NetworkImage(dessertfood['image']),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
