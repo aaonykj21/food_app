@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:food/dessert.dart';
+import 'package:food/restaurant.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -167,81 +169,102 @@ class _HomePageState extends State<HomePage> {
                           itemCount: savoryfood.length,
                           itemBuilder: (context, index) {
                             var savory = savoryfood[index];
-                            return Container(
-                              height: 200, // กำหนดขนาดให้เหมาะสม
-                              width: 200, // กำหนดขนาดให้เหมาะสม
-                              margin: EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: const Color.fromARGB(255, 227, 226, 226),
-                              ),
-                              child: PageView(
-                                scrollDirection:
-                                    Axis.horizontal, // เลื่อนในแนวนอน
-                                controller:
-                                    _savoryPageController, // ใช้ controller สำหรับ savory
-                                onPageChanged: (index) {
-                                  setState(() {
-                                    _currentIndex = index;
-                                  });
-                                },
-                                children: [
-                                  Container(
-                                    height: 150, // เพิ่มความสูงของ Container
-                                    width: 100, // กำหนดความกว้าง
-                                    margin: EdgeInsets.all(15.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        // Image
-                                        Container(
-                                          height: 170, // ขนาดของรูปภาพ
-                                          width: 200,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            image: DecorationImage(
-                                              image: NetworkImage(
-                                                savory['image'],
+                            return GestureDetector(
+                              onTap: () {
+                                // เมื่อกดคอนเทนเนอร์จะไปที่หน้าร้านอาหาร
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => RestaurantPage(
+                                          restaurantData:
+                                              savory, // ส่งข้อมูลร้านไปที่หน้าใหม่
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 200, // กำหนดขนาดให้เหมาะสม
+                                width: 200, // กำหนดขนาดให้เหมาะสม
+                                margin: EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: const Color.fromARGB(
+                                    255,
+                                    227,
+                                    226,
+                                    226,
+                                  ),
+                                ),
+                                child: PageView(
+                                  scrollDirection:
+                                      Axis.horizontal, // เลื่อนในแนวนอน
+                                  controller:
+                                      _savoryPageController, // ใช้ controller สำหรับ savory
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      _currentIndex = index;
+                                    });
+                                  },
+                                  children: [
+                                    Container(
+                                      height: 150, // เพิ่มความสูงของ Container
+                                      width: 100, // กำหนดความกว้าง
+                                      margin: EdgeInsets.all(15.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          // Image
+                                          Container(
+                                            height: 170, // ขนาดของรูปภาพ
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              image: DecorationImage(
+                                                image: NetworkImage(
+                                                  savory['image'],
+                                                ),
+                                                fit: BoxFit.cover,
                                               ),
-                                              fit: BoxFit.cover,
                                             ),
                                           ),
-                                        ),
-                                        // Text at the bottom
-                                        Positioned(
-                                          bottom: 0, 
-                                          left: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 5.0,
-                                            ),
-                                            child: Align(
-                                              alignment:
-                                                  Alignment
-                                                      .center, // จัดข้อความให้ตรงกลาง
-                                              child: Text(
-                                                savory['name'], // ชื่อของอาหาร
-                                                style: TextStyle(
-                                                  color:
-                                                      Colors
-                                                          .black, // สีของข้อความ
-                                                  fontWeight:
-                                                      FontWeight.bold, // ตัวหนา
-                                                  fontSize: 18, // ขนาดตัวอักษร
+                                          // Text at the bottom
+                                          Positioned(
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 5.0,
+                                              ),
+                                              child: Align(
+                                                alignment:
+                                                    Alignment
+                                                        .center, // จัดข้อความให้ตรงกลาง
+                                                child: Text(
+                                                  savory['name'], // ชื่อของอาหาร
+                                                  style: TextStyle(
+                                                    color:
+                                                        Colors
+                                                            .black, // สีของข้อความ
+                                                    fontWeight:
+                                                        FontWeight
+                                                            .bold, // ตัวหนา
+                                                    fontSize:
+                                                        18, // ขนาดตัวอักษร
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -251,85 +274,190 @@ class _HomePageState extends State<HomePage> {
                           itemCount: dessert.length,
                           itemBuilder: (context, index) {
                             var dessertfood = dessert[index];
-                            return Container(
-                              height: 200, // กำหนดขนาดให้เหมาะสม
-                              width: 200, // กำหนดขนาดให้เหมาะสม
-                              margin: EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: const Color.fromARGB(255, 227, 226, 226),
-                              ),
-                              child: PageView(
-                                scrollDirection:
-                                    Axis.horizontal, // เลื่อนในแนวนอน
-                                controller:
-                                    _dessertPageController, // ใช้ controller สำหรับ savory
-                                onPageChanged: (index) {
-                                  setState(() {
-                                    _currentIndex = index;
-                                  });
-                                },
-                                children: [
-                                  Container(
-                                    height: 150, // เพิ่มความสูงของ Container
-                                    width: 100, // กำหนดความกว้าง
-                                    margin: EdgeInsets.all(15.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        // Image
-                                        Container(
-                                          height: 170, // ขนาดของรูปภาพ
-                                          width: 200,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            image: DecorationImage(
-                                              image: NetworkImage(
-                                                dessertfood['image'],
+                            return GestureDetector(
+                              onTap: () {
+                                // เมื่อกดคอนเทนเนอร์จะไปที่หน้าร้านอาหาร
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => DessertPage(
+                                          dessertData:
+                                              dessertfood, // ส่งข้อมูลร้านไปที่หน้าใหม่
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 200, // กำหนดขนาดให้เหมาะสม
+                                width: 200, // กำหนดขนาดให้เหมาะสม
+                                margin: EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: const Color.fromARGB(
+                                    255,
+                                    227,
+                                    226,
+                                    226,
+                                  ),
+                                ),
+                                child: PageView(
+                                  scrollDirection:
+                                      Axis.horizontal, // เลื่อนในแนวนอน
+                                  controller:
+                                      _dessertPageController, // ใช้ controller สำหรับ savory
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      _currentIndex = index;
+                                    });
+                                  },
+                                  children: [
+                                    Container(
+                                      height: 150, // เพิ่มความสูงของ Container
+                                      width: 100, // กำหนดความกว้าง
+                                      margin: EdgeInsets.all(15.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          // Image
+                                          Container(
+                                            height: 170, // ขนาดของรูปภาพ
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              image: DecorationImage(
+                                                image: NetworkImage(
+                                                  dessertfood['image'],
+                                                ),
+                                                fit: BoxFit.cover,
                                               ),
-                                              fit: BoxFit.cover,
                                             ),
                                           ),
-                                        ),
-                                        // Text at the bottom
-                                        Positioned(
-                                          bottom: 0, 
-                                          left: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 5.0,
-                                            ),
-                                            child: Align(
-                                              alignment:
-                                                  Alignment
-                                                      .center, // จัดข้อความให้ตรงกลาง
-                                              child: Text(
-                                                dessertfood['name'], // ชื่อของอาหาร
-                                                style: TextStyle(
-                                                  color:
-                                                      Colors
-                                                          .black, // สีของข้อความ
-                                                  fontWeight:
-                                                      FontWeight.bold, // ตัวหนา
-                                                  fontSize: 18, // ขนาดตัวอักษร
+                                          // Text at the bottom
+                                          Positioned(
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 5.0,
+                                              ),
+                                              child: Align(
+                                                alignment:
+                                                    Alignment
+                                                        .center, // จัดข้อความให้ตรงกลาง
+                                                child: Text(
+                                                  dessertfood['name'], // ชื่อของอาหาร
+                                                  style: TextStyle(
+                                                    color:
+                                                        Colors
+                                                            .black, // สีของข้อความ
+                                                    fontWeight:
+                                                        FontWeight
+                                                            .bold, // ตัวหนา
+                                                    fontSize:
+                                                        18, // ขนาดตัวอักษร
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
                         ),
+                        // ListView.builder(
+                        //   scrollDirection: Axis.horizontal, // เลื่อนในแนวนอน
+                        //   itemCount: dessert.length,
+                        //   itemBuilder: (context, index) {
+                        //     var dessertfood = dessert[index];
+                        //     return Container(
+                        //       height: 200, // กำหนดขนาดให้เหมาะสม
+                        //       width: 200, // กำหนดขนาดให้เหมาะสม
+                        //       margin: EdgeInsets.all(10.0),
+                        //       decoration: BoxDecoration(
+                        //         borderRadius: BorderRadius.circular(10),
+                        //         color: const Color.fromARGB(255, 227, 226, 226),
+                        //       ),
+                        //       child: PageView(
+                        //         scrollDirection:
+                        //             Axis.horizontal, // เลื่อนในแนวนอน
+                        //         controller:
+                        //             _dessertPageController, // ใช้ controller สำหรับ savory
+                        //         onPageChanged: (index) {
+                        //           setState(() {
+                        //             _currentIndex = index;
+                        //           });
+                        //         },
+                        //         children: [
+                        //           Container(
+                        //             height: 150, // เพิ่มความสูงของ Container
+                        //             width: 100, // กำหนดความกว้าง
+                        //             margin: EdgeInsets.all(15.0),
+                        //             decoration: BoxDecoration(
+                        //               borderRadius: BorderRadius.circular(10),
+                        //             ),
+                        //             child: Stack(
+                        //               children: [
+                        //                 // Image
+                        //                 Container(
+                        //                   height: 170, // ขนาดของรูปภาพ
+                        //                   width: 200,
+                        //                   decoration: BoxDecoration(
+                        //                     borderRadius: BorderRadius.circular(
+                        //                       10,
+                        //                     ),
+                        //                     image: DecorationImage(
+                        //                       image: NetworkImage(
+                        //                         dessertfood['image'],
+                        //                       ),
+                        //                       fit: BoxFit.cover,
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //                 // Text at the bottom
+                        //                 Positioned(
+                        //                   bottom: 0,
+                        //                   left: 0,
+                        //                   right: 0,
+                        //                   child: Container(
+                        //                     padding: EdgeInsets.symmetric(
+                        //                       vertical: 5.0,
+                        //                     ),
+                        //                     child: Align(
+                        //                       alignment:
+                        //                           Alignment
+                        //                               .center, // จัดข้อความให้ตรงกลาง
+                        //                       child: Text(
+                        //                         dessertfood['name'], // ชื่อของอาหาร
+                        //                         style: TextStyle(
+                        //                           color:
+                        //                               Colors
+                        //                                   .black, // สีของข้อความ
+                        //                           fontWeight:
+                        //                               FontWeight.bold, // ตัวหนา
+                        //                           fontSize: 18, // ขนาดตัวอักษร
+                        //                         ),
+                        //                       ),
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     );
+                        //   },
+                        // ),
                         // ListView.builder(
                         //   scrollDirection: Axis.horizontal, // เลื่อนในแนวนอน
                         //   itemCount: dessert.length,

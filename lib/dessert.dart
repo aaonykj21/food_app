@@ -1,44 +1,43 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class RestaurantPage extends StatefulWidget {
-  final dynamic restaurantData;
-
-  const RestaurantPage({Key? key, required this.restaurantData})
-    : super(key: key);
+class DessertPage extends StatefulWidget {
+  final dynamic dessertData;
+  const DessertPage({Key? key, required this.dessertData}) : super(key: key);
 
   @override
-  _RestaurantPageState createState() => _RestaurantPageState();
+  State<DessertPage> createState() => _DessertPageState();
 }
 
-class _RestaurantPageState extends State<RestaurantPage> {
-  List<dynamic> savoryfood = [];
+class _DessertPageState extends State<DessertPage> {
+  List<dynamic> dessert = [];
 
-  // ฟังก์ชัน fetchData สำหรับดึงข้อมูลจาก API
   Future<void> fetchData() async {
-    try {
-      var response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/savoryfood'),
-      ); // ใช้ http.get() เพื่อเรียก API
-      if (response.statusCode == 200) {
-        String foodBody = utf8.decode(response.bodyBytes);
-        List<dynamic> jsonList = jsonDecode(foodBody);
+  try {
+      var dessertResponse = await http.get(
+        Uri.parse('http://10.0.2.2:3000/dessert'),
+      );
+      if (dessertResponse.statusCode == 200) {
+        // ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
+        String dessertBody = utf8.decode(dessertResponse.bodyBytes);
+        List<dynamic> dessertList = jsonDecode(dessertBody);
         setState(() {
-          savoryfood = jsonList; // อัปเดตข้อมูล savoryfood
+          dessert = dessertList; // อัปเดตข้อมูล dessert
         });
       } else {
-        throw Exception("Failed to load savoryfood");
+        throw Exception("Failed to load dessert");
       }
     } catch (e) {
+      //ถ้าเกิดข้อผิดพลาด → catch (e) จะจับ error และพิมพ์ออกมาใน console
       print(e);
     }
   }
-
   Future<void> addToFavorites() async {
     final favoriteData = {
-      'name': widget.restaurantData['name'],
-      'image': widget.restaurantData['image'],
+      'name': widget.dessertData['name'],
+      'image': widget.dessertData['image'],
     };
 
     try {
@@ -49,7 +48,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
+       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
@@ -86,21 +85,14 @@ class _RestaurantPageState extends State<RestaurantPage> {
   @override
   void initState() {
     super.initState();
-    fetchData(); // เรียกใช้ฟังก์ชัน fetchData เมื่อหน้าโหลด
+    fetchData();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.restaurantData['name'],
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text(widget.dessertData['name']),
         backgroundColor: Colors.red,
-        iconTheme: IconThemeData(
-          color: Colors.white, // ทำให้ปุ่มลูกศรเป็นสีขาว
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -114,14 +106,15 @@ class _RestaurantPageState extends State<RestaurantPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 image: DecorationImage(
-                  image: NetworkImage(widget.restaurantData['image']),
+                  image: NetworkImage(widget.dessertData['image']),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             SizedBox(height: 20),
+            // แสดงรายละเอียดของร้าน
             Text(
-              widget.restaurantData['description'],
+              widget.dessertData['description'],
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
@@ -135,7 +128,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.restaurantData['open'],
+                    widget.dessertData['open'],
                     style: TextStyle(fontSize: 16),
                     softWrap: true, // ให้ตัดบรรทัดอัตโนมัติ
                   ),
@@ -153,13 +146,15 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.restaurantData['address'],
+                    widget.dessertData['address'],
                     style: TextStyle(fontSize: 16),
                     softWrap: true, // ให้ตัดบรรทัดอัตโนมัติ
                   ),
                 ),
               ],
             ),
+            
+            
           ],
         ),
       ),
