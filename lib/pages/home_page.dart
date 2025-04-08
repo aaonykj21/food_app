@@ -13,7 +13,7 @@ class _HomePageState extends State<HomePage> {
   final PageController _controller = PageController();
   int _currentIndex = 0;
 
-   @override
+  @override
   void initState() {
     super.initState();
     _startAutoSlider();
@@ -42,55 +42,70 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         backgroundColor: Colors.red,
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          height: 250,
-          width: 400,
-          margin: EdgeInsets.all(15.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+      body: Column(
+        children: [
+          Align(
+            child: Container(
+              height: 250,
+              width: 400,
+              margin: EdgeInsets.all(15.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: PageView(
+                controller: _controller,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: AssetImage('assets/bun1.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: AssetImage('assets/bun2.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: AssetImage('assets/bun3.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          child: PageView(
-            controller: _controller,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage('assets/bun1.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+          SizedBox(height: 10),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.0,
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Restaurant',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage('assets/bun2.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage('assets/bun3.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      )
+        ],
+      ),
     );
-    
   }
 }
