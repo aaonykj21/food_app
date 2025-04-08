@@ -103,6 +103,51 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
+            
+          ),
+           Expanded(
+            child: DefaultTabController(
+              length: 2, // We have 2 tabs
+              child: Column(
+                children: [
+                  // TabBar at the bottom of the screen
+                  TabBar(
+                    tabs: const [
+                      Tab(text: "ของคาว 🍲"),
+                      Tab(text: "ของหวาน 🍰"),
+                    ],
+                    indicatorColor: Colors.red,
+                    labelColor: Colors.red,
+                    unselectedLabelColor: Colors.black,
+                  ),
+                  // TabBarView to show respective content
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        // Content for the first tab (อาหารคาว)
+                        ListView.builder(
+                          itemCount: 5,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text('ร้านอาหารคาว $index'),
+                            );
+                          },
+                        ),
+                        // Content for the second tab (ของหวาน)
+                        ListView.builder(
+                          itemCount: 5,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text('ร้านของหวาน $index'),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
