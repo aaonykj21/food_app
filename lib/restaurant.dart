@@ -39,6 +39,10 @@ class _RestaurantPageState extends State<RestaurantPage> {
     final favoriteData = {
       'name': widget.restaurantData['name'],
       'image': widget.restaurantData['image'],
+      'description': widget.restaurantData['description'],
+      'open': widget.restaurantData['open'],
+      'address': widget.restaurantData['address'],
+      'category': 'savoryfood',
     };
 
     try {

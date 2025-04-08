@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:food/dessert.dart';
+import 'package:food/restaurant.dart';
 import 'package:http/http.dart' as http;
 
 class FavoritePage extends StatefulWidget {
@@ -12,11 +14,10 @@ class FavoritePage extends StatefulWidget {
 class _FavoritePageState extends State<FavoritePage> {
   List<dynamic> favorite = [];
 
+  // ฟังก์ชันดึงข้อมูล
   Future<void> fetchData() async {
     try {
-      var response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/favorite'),
-      ); // ใช้ http.get() เพื่อเรียก API
+      var response = await http.get(Uri.parse('http://10.0.2.2:3000/favorite'));
       if (response.statusCode == 200) {
         String foodBody = utf8.decode(response.bodyBytes);
         List<dynamic> jsonList = jsonDecode(foodBody);
@@ -28,6 +29,54 @@ class _FavoritePageState extends State<FavoritePage> {
       }
     } catch (e) {
       print(e);
+    }
+  }
+
+  // ฟังก์ชันลบรายการจากรายการโปรด
+  Future<void> deleteFromFavorites(String id) async {
+    try {
+      var response = await http.delete(
+        Uri.parse('http://10.0.2.2:3000/favorite/$id'), // ใช้ id ของร้านในการลบ
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          favorite.removeWhere(
+            (item) => item['id'] == id,
+          ); // ลบรายการออกจาก list
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'ลบรายการ ${favorite.firstWhere((e) => e['id'] == id)['name']} เรียบร้อย',
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Failed to delete favorite');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // ฟังก์ชันที่นำไปสู่หน้าต่างๆ
+  void navigateToPage(dynamic restaurant) {
+    if (restaurant['category'] == 'savoryfood') {
+      // ถ้า category เป็น savoryfood ให้ไปหน้า RestaurantPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RestaurantPage(restaurantData: restaurant),
+        ),
+      );
+    } else if (restaurant['category'] == 'dessert') {
+      // ถ้า category เป็น dessert ให้ไปหน้า DessertPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DessertPage(dessertData: restaurant),
+        ),
+      );
     }
   }
 
@@ -47,52 +96,87 @@ class _FavoritePageState extends State<FavoritePage> {
       ),
       body:
           favorite.isEmpty
-              ? Center(child: CircularProgressIndicator())
+              ? Center(
+                child: Text(
+                  'โปรดเลือกร้านอาหารที่ชอบ',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              )
               : ListView.builder(
                 itemCount: favorite.length,
                 itemBuilder: (context, index) {
                   var restaurant = favorite[index];
-                  return Container(
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 5,
+                  return Dismissible(
+                    key: Key(
+                      restaurant['id'].toString(),
+                    ), // กำหนด key ที่ไม่ซ้ำ
+                    direction:
+                        DismissDirection.endToStart, // เลื่อนจากขวาไปซ้าย
+                    onDismissed: (direction) {
+                      deleteFromFavorites(
+                        restaurant['id'],
+                      ); // เรียกใช้ฟังก์ชันลบ
+                    },
+                    background: Container(
+                      color: Colors.red, // เมื่อเลื่อนออกจากขวา จะมีสีแดง
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Icon(Icons.delete, color: Colors.white),
                         ),
-                      ],
+                      ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 80,
-                            width: 80,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                image: NetworkImage(restaurant['image']),
-                                fit: BoxFit.cover,
-                              ),
+                    child: GestureDetector(
+                      onTap: () {
+                        navigateToPage(restaurant); // ไปที่หน้าตาม category
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 15,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 5,
                             ),
-                          ),
-                          SizedBox(width: 20),
-                          // ชื่อร้าน
-                          Expanded(
-                            child: Text(
-                              restaurant['name'],
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 80,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  image: DecorationImage(
+                                    image: NetworkImage(restaurant['image']),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                              SizedBox(width: 20),
+                              // ชื่อร้าน
+                              Expanded(
+                                child: Text(
+                                  restaurant['name'],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   );

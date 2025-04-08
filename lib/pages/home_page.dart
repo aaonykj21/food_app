@@ -189,12 +189,7 @@ class _HomePageState extends State<HomePage> {
                                 margin: EdgeInsets.all(10.0),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: const Color.fromARGB(
-                                    255,
-                                    227,
-                                    226,
-                                    226,
-                                  ),
+                                  color: const Color.fromARGB(255,227,226,226,),
                                 ),
                                 child: PageView(
                                   scrollDirection:

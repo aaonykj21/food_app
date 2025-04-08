@@ -38,6 +38,10 @@ class _DessertPageState extends State<DessertPage> {
     final favoriteData = {
       'name': widget.dessertData['name'],
       'image': widget.dessertData['image'],
+      'description': widget.dessertData['description'],
+      'open': widget.dessertData['open'],
+      'address': widget.dessertData['address'],
+      'category': 'dessert',
     };
 
     try {
@@ -91,8 +95,11 @@ class _DessertPageState extends State<DessertPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.dessertData['name']),
+        title: Text(widget.dessertData['name'], style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.red,
+        iconTheme: IconThemeData(
+          color: Colors.white, // ทำให้ปุ่มลูกศรเป็นสีขาว
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
