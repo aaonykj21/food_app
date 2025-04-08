@@ -14,23 +14,43 @@ class _HomePageState extends State<HomePage> {
   final PageController _controller = PageController();
   int _currentIndex = 0;
   List<dynamic> savoryfood = [];
-  List<dynamic> dessert= [];
+  List<dynamic> dessert = [];
 
   Future<void> fetchData() async {
     try {
-      var response = await http.get(Uri.parse('http://localhost:3000/savoryfood')); //ใช้ http.get() เพื่อเรียก API
-      if (response.statusCode == 200) { //ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
-        List<dynamic> jsonList = jsonDecode(response.body);
-        setState(() { //ใช้ setState() เพื่ออัปเดต products และรีเฟรช UI
+      var response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/savoryfood'),
+      ); //ใช้ http.get() เพื่อเรียก API
+      if (response.statusCode == 200) {
+        //ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
+        String foodBody = utf8.decode(response.bodyBytes);
+        List<dynamic> jsonList = jsonDecode(foodBody);
+        setState(() {
+          //ใช้ setState() เพื่ออัปเดต products และรีเฟรช UI
           savoryfood = jsonList;
         });
       } else {
         throw Exception("Failed to load products");
       }
-    } catch (e) { //ถ้าเกิดข้อผิดพลาด → catch (e) จะจับ error และพิมพ์ออกมาใน console
+      var dessertResponse = await http.get(
+      Uri.parse('http://10.0.2.2:3000/dessert'),
+    );
+    if (dessertResponse.statusCode == 200) {
+      // ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
+      String dessertBody = utf8.decode(dessertResponse.bodyBytes);
+      List<dynamic> dessertList = jsonDecode(dessertBody);
+      setState(() {
+        dessert = dessertList; // อัปเดตข้อมูล dessert
+      });
+    } else {
+      throw Exception("Failed to load dessert");
+    }
+    } catch (e) {
+      //ถ้าเกิดข้อผิดพลาด → catch (e) จะจับ error และพิมพ์ออกมาใน console
       print(e);
     }
   }
+  
 
   @override
   void initState() {
@@ -113,9 +133,7 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(height: 10),
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -123,9 +141,8 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
-            
           ),
-           Expanded(
+          Expanded(
             child: DefaultTabController(
               length: 2, // We have 2 tabs
               child: Column(
@@ -140,46 +157,34 @@ class _HomePageState extends State<HomePage> {
                     labelColor: Colors.red,
                     unselectedLabelColor: Colors.black,
                   ),
-                  // ListView.separated(
-                  //   separatorBuilder: (BuildContext context, int index) => const Divider(),
-                  //   itemCount: savoryfood.length,
-                  //   itemBuilder: (context, index) {
-                  //     var savory = savoryfood[index];
-
-                  //     return ListTile(
-                  //       title: Text(savory['name']),
-                  //     );
-
-
-
-
-                  //   },
-                  // )
-                  // TabBarView to show respective content
-                  // Expanded(
-                  //   child: TabBarView(
-                  //     children: [
-                  //       // Content for the first tab (อาหารคาว)
-                  //       ListView.builder(
-                  //         itemCount: 5,
-                  //         itemBuilder: (context, index) {
-                  //           return ListTile(
-                  //             title: Text('ร้านอาหารคาว $index'),
-                  //           );
-                  //         },
-                  //       ),
-                  //       // Content for the second tab (ของหวาน)
-                  //       ListView.builder(
-                  //         itemCount: 5,
-                  //         itemBuilder: (context, index) {
-                  //           return ListTile(
-                  //             title: Text('ร้านของหวาน $index'),
-                  //           );
-                  //         },
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        // First tab content (อาหารคาว)
+                        ListView.separated(
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const Divider(),
+                          itemCount: savoryfood.length,
+                          itemBuilder: (context, index) {
+                            var savory = savoryfood[index];
+                            return ListTile(
+                              title: Text(savory['name']),
+                            );
+                          },
+                        ),
+                        // Second tab content (ของหวาน)
+                        ListView.builder(
+                          itemCount: dessert.length,
+                          itemBuilder: (context, index) {
+                            var dessertfood = dessert[index];
+                            return ListTile(
+                              title: Text(dessertfood['name']),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
