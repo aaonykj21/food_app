@@ -14,7 +14,6 @@ class FavoritePage extends StatefulWidget {
 class _FavoritePageState extends State<FavoritePage> {
   List<dynamic> favorite = [];
 
-  // ฟังก์ชันดึงข้อมูล
   Future<void> fetchData() async {
     try {
       var response = await http.get(Uri.parse('http://10.0.2.2:3000/favorite'));
@@ -32,25 +31,15 @@ class _FavoritePageState extends State<FavoritePage> {
     }
   }
 
-  // ฟังก์ชันลบรายการจากรายการโปรด
   Future<void> deleteFromFavorites(String id) async {
     try {
       var response = await http.delete(
-        Uri.parse('http://10.0.2.2:3000/favorite/$id'), // ใช้ id ของร้านในการลบ
+        Uri.parse('http://10.0.2.2:3000/favorite/$id'),
       );
       if (response.statusCode == 200) {
         setState(() {
-          favorite.removeWhere(
-            (item) => item['id'] == id,
-          ); // ลบรายการออกจาก list
+          favorite.removeWhere((item) => item['id'] == id);
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'ลบรายการ ${favorite.firstWhere((e) => e['id'] == id)['name']} เรียบร้อย',
-            ),
-          ),
-        );
       } else {
         throw Exception('Failed to delete favorite');
       }
@@ -59,10 +48,8 @@ class _FavoritePageState extends State<FavoritePage> {
     }
   }
 
-  // ฟังก์ชันที่นำไปสู่หน้าต่างๆ
   void navigateToPage(dynamic restaurant) {
     if (restaurant['category'] == 'savoryfood') {
-      // ถ้า category เป็น savoryfood ให้ไปหน้า RestaurantPage
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -70,7 +57,6 @@ class _FavoritePageState extends State<FavoritePage> {
         ),
       );
     } else if (restaurant['category'] == 'dessert') {
-      // ถ้า category เป็น dessert ให้ไปหน้า DessertPage
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -107,18 +93,13 @@ class _FavoritePageState extends State<FavoritePage> {
                 itemBuilder: (context, index) {
                   var restaurant = favorite[index];
                   return Dismissible(
-                    key: Key(
-                      restaurant['id'].toString(),
-                    ), // กำหนด key ที่ไม่ซ้ำ
-                    direction:
-                        DismissDirection.endToStart, // เลื่อนจากขวาไปซ้าย
+                    key: Key(restaurant['id'].toString()),
+                    direction: DismissDirection.endToStart,
                     onDismissed: (direction) {
-                      deleteFromFavorites(
-                        restaurant['id'],
-                      ); // เรียกใช้ฟังก์ชันลบ
+                      deleteFromFavorites(restaurant['id']);
                     },
                     background: Container(
-                      color: Colors.red, // เมื่อเลื่อนออกจากขวา จะมีสีแดง
+                      color: Colors.red,
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Padding(
@@ -129,7 +110,7 @@ class _FavoritePageState extends State<FavoritePage> {
                     ),
                     child: GestureDetector(
                       onTap: () {
-                        navigateToPage(restaurant); // ไปที่หน้าตาม category
+                        navigateToPage(restaurant);
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(
@@ -163,7 +144,6 @@ class _FavoritePageState extends State<FavoritePage> {
                                 ),
                               ),
                               SizedBox(width: 20),
-                              // ชื่อร้าน
                               Expanded(
                                 child: Text(
                                   restaurant['name'],

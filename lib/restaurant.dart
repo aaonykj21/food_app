@@ -14,18 +14,18 @@ class RestaurantPage extends StatefulWidget {
 
 class _RestaurantPageState extends State<RestaurantPage> {
   List<dynamic> savoryfood = [];
+  bool isFavorite = false;
 
-  // ฟังก์ชัน fetchData สำหรับดึงข้อมูลจาก API
   Future<void> fetchData() async {
     try {
       var response = await http.get(
         Uri.parse('http://10.0.2.2:3000/savoryfood'),
-      ); // ใช้ http.get() เพื่อเรียก API
+      );
       if (response.statusCode == 200) {
         String foodBody = utf8.decode(response.bodyBytes);
         List<dynamic> jsonList = jsonDecode(foodBody);
         setState(() {
-          savoryfood = jsonList; // อัปเดตข้อมูล savoryfood
+          savoryfood = jsonList;
         });
       } else {
         throw Exception("Failed to load savoryfood");
@@ -53,29 +53,30 @@ class _RestaurantPageState extends State<RestaurantPage> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        await checkIfFavorite();
         ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'เพิ่มไปยังรายการโปรดเรียบร้อยแล้ว',
-                style: TextStyle(color: Colors.white),
-              ),
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'เพิ่มไปยังรายการโปรดเรียบร้อยแล้ว',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        backgroundColor: Colors.green, // สีพื้นหลังของ SnackBar
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating, // ให้ลอยจากขอบล่าง
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // เว้นขอบ SnackBar
-      ),
-    );
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+        );
       } else {
         throw Exception('ไม่สามารถเพิ่มรายการโปรดได้');
       }
@@ -87,10 +88,32 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
+  Future<void> checkIfFavorite() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/favorite'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> favoriteList = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
+        final exists = favoriteList.any(
+          (item) => item['name'] == widget.restaurantData['name'],
+        );
+        setState(() {
+          isFavorite = exists;
+        });
+      }
+    } catch (e) {
+      print("Error checking favorite: $e");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    fetchData(); // เรียกใช้ฟังก์ชัน fetchData เมื่อหน้าโหลด
+    fetchData();
+    checkIfFavorite();
   }
 
   @override
@@ -102,16 +125,13 @@ class _RestaurantPageState extends State<RestaurantPage> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red,
-        iconTheme: IconThemeData(
-          color: Colors.white, // ทำให้ปุ่มลูกศรเป็นสีขาว
-        ),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // แสดงรูปภาพของร้าน
             Container(
               width: double.infinity,
               height: 250,
@@ -130,8 +150,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
             ),
             SizedBox(height: 20),
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start, // ให้ข้อความขึ้นบรรทัดใหม่สวย ๆ
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'เวลาเปิดทำการ : ',
@@ -141,7 +160,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                   child: Text(
                     widget.restaurantData['open'],
                     style: TextStyle(fontSize: 16),
-                    softWrap: true, // ให้ตัดบรรทัดอัตโนมัติ
+                    softWrap: true,
                   ),
                 ),
               ],
@@ -149,7 +168,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
 
             SizedBox(height: 20),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start, // ให้ Text ชิดบน
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'พิกัด : ',
@@ -159,7 +178,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                   child: Text(
                     widget.restaurantData['address'],
                     style: TextStyle(fontSize: 16),
-                    softWrap: true, // ให้ตัดบรรทัดอัตโนมัติ
+                    softWrap: true,
                   ),
                 ),
               ],
@@ -167,29 +186,31 @@ class _RestaurantPageState extends State<RestaurantPage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: const Color.fromARGB(255, 255, 255, 255),
-        elevation: 8,
-        child: Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: addToFavorites,
-              icon: Icon(Icons.favorite, color: Colors.white),
-              label: Text(
-                'เพิ่มในรายการโปรด',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+      bottomNavigationBar:
+          isFavorite
+              ? null
+              : BottomAppBar(
+                color: const Color.fromARGB(255, 255, 255, 255),
+                elevation: 8,
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: addToFavorites,
+                      icon: Icon(Icons.favorite, color: Colors.white),
+                      label: Text(
+                        'เพิ่มในรายการโปรด',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 12),
-                
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

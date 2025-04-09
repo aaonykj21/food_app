@@ -13,27 +13,27 @@ class DessertPage extends StatefulWidget {
 
 class _DessertPageState extends State<DessertPage> {
   List<dynamic> dessert = [];
+  bool isFavorite = false;
 
   Future<void> fetchData() async {
-  try {
+    try {
       var dessertResponse = await http.get(
         Uri.parse('http://10.0.2.2:3000/dessert'),
       );
       if (dessertResponse.statusCode == 200) {
-        // ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
         String dessertBody = utf8.decode(dessertResponse.bodyBytes);
         List<dynamic> dessertList = jsonDecode(dessertBody);
         setState(() {
-          dessert = dessertList; // อัปเดตข้อมูล dessert
+          dessert = dessertList;
         });
       } else {
         throw Exception("Failed to load dessert");
       }
     } catch (e) {
-      //ถ้าเกิดข้อผิดพลาด → catch (e) จะจับ error และพิมพ์ออกมาใน console
       print(e);
     }
   }
+
   Future<void> addToFavorites() async {
     final favoriteData = {
       'name': widget.dessertData['name'],
@@ -52,29 +52,30 @@ class _DessertPageState extends State<DessertPage> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'เพิ่มไปยังรายการโปรดเรียบร้อยแล้ว',
-                style: TextStyle(color: Colors.white),
-              ),
+        await checkIfFavorite();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'เพิ่มไปยังรายการโปรดเรียบร้อยแล้ว',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        backgroundColor: Colors.green, // สีพื้นหลังของ SnackBar
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating, // ให้ลอยจากขอบล่าง
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // เว้นขอบ SnackBar
-      ),
-    );
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+        );
       } else {
         throw Exception('ไม่สามารถเพิ่มรายการโปรดได้');
       }
@@ -86,27 +87,50 @@ class _DessertPageState extends State<DessertPage> {
     }
   }
 
+  Future<void> checkIfFavorite() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/favorite'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> favoriteList = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
+        final exists = favoriteList.any(
+          (item) => item['name'] == widget.dessertData['name'],
+        );
+        setState(() {
+          isFavorite = exists;
+        });
+      }
+    } catch (e) {
+      print("Error checking favorite: $e");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     fetchData();
+    checkIfFavorite();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.dessertData['name'], style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.red,
-        iconTheme: IconThemeData(
-          color: Colors.white, // ทำให้ปุ่มลูกศรเป็นสีขาว
+        title: Text(
+          widget.dessertData['name'],
+          style: TextStyle(color: Colors.white),
         ),
+        backgroundColor: Colors.red,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // แสดงรูปภาพของร้าน
             Container(
               width: double.infinity,
               height: 250,
@@ -119,15 +143,13 @@ class _DessertPageState extends State<DessertPage> {
               ),
             ),
             SizedBox(height: 20),
-            // แสดงรายละเอียดของร้าน
             Text(
               widget.dessertData['description'],
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start, // ให้ข้อความขึ้นบรรทัดใหม่สวย ๆ
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'เวลาเปิดทำการ : ',
@@ -137,7 +159,7 @@ class _DessertPageState extends State<DessertPage> {
                   child: Text(
                     widget.dessertData['open'],
                     style: TextStyle(fontSize: 16),
-                    softWrap: true, // ให้ตัดบรรทัดอัตโนมัติ
+                    softWrap: true,
                   ),
                 ),
               ],
@@ -145,7 +167,7 @@ class _DessertPageState extends State<DessertPage> {
 
             SizedBox(height: 20),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start, // ให้ Text ชิดบน
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'พิกัด : ',
@@ -155,39 +177,39 @@ class _DessertPageState extends State<DessertPage> {
                   child: Text(
                     widget.dessertData['address'],
                     style: TextStyle(fontSize: 16),
-                    softWrap: true, // ให้ตัดบรรทัดอัตโนมัติ
+                    softWrap: true,
                   ),
                 ),
               ],
             ),
-            
-            
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: const Color.fromARGB(255, 255, 255, 255),
-        elevation: 8,
-        child: Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: addToFavorites,
-              icon: Icon(Icons.favorite, color: Colors.white),
-              label: Text(
-                'เพิ่มในรายการโปรด',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+      bottomNavigationBar:
+          isFavorite
+              ? null
+              : BottomAppBar(
+                color: const Color.fromARGB(255, 255, 255, 255),
+                elevation: 8,
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: addToFavorites,
+                      icon: Icon(Icons.favorite, color: Colors.white),
+                      label: Text(
+                        'เพิ่มในรายการโปรด',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 12),
-                
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

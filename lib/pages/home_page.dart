@@ -24,13 +24,11 @@ class _HomePageState extends State<HomePage> {
     try {
       var response = await http.get(
         Uri.parse('http://10.0.2.2:3000/savoryfood'),
-      ); //ใช้ http.get() เพื่อเรียก API
+      );
       if (response.statusCode == 200) {
-        //ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
         String foodBody = utf8.decode(response.bodyBytes);
         List<dynamic> jsonList = jsonDecode(foodBody);
         setState(() {
-          //ใช้ setState() เพื่ออัปเดต products และรีเฟรช UI
           savoryfood = jsonList;
         });
       } else {
@@ -40,17 +38,15 @@ class _HomePageState extends State<HomePage> {
         Uri.parse('http://10.0.2.2:3000/dessert'),
       );
       if (dessertResponse.statusCode == 200) {
-        // ถ้าสำเร็จ (statusCode == 200) → แปลง JSON เป็น List<dynamic>
         String dessertBody = utf8.decode(dessertResponse.bodyBytes);
         List<dynamic> dessertList = jsonDecode(dessertBody);
         setState(() {
-          dessert = dessertList; // อัปเดตข้อมูล dessert
+          dessert = dessertList;
         });
       } else {
         throw Exception("Failed to load dessert");
       }
     } catch (e) {
-      //ถ้าเกิดข้อผิดพลาด → catch (e) จะจับ error และพิมพ์ออกมาใน console
       print(e);
     }
   }
@@ -71,7 +67,7 @@ class _HomePageState extends State<HomePage> {
             curve: Curves.easeInOut,
           );
         } else {
-          _controller.jumpToPage(0); // ถ้าถึงหน้าสุดท้ายจะเริ่มใหม่
+          _controller.jumpToPage(0);
         }
       }
     });
@@ -147,15 +143,11 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: DefaultTabController(
-              length: 2, // We have 2 tabs
+              length: 2,
               child: Column(
                 children: [
-                  // TabBar at the bottom of the screen
                   TabBar(
-                    tabs: const [
-                      Tab(text: "อาหารคาว 🍲"),
-                      Tab(text: "อาหารหวาน 🍰"),
-                    ],
+                    tabs: const [Tab(text: "อาหาร"), Tab(text: "ขนมหวาน")],
                     indicatorColor: Colors.red,
                     labelColor: Colors.red,
                     unselectedLabelColor: Colors.black,
@@ -163,39 +155,39 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        // First tab content (อาหารคาว)
                         ListView.builder(
-                          scrollDirection: Axis.horizontal, // เลื่อนในแนวนอน
+                          scrollDirection: Axis.horizontal,
                           itemCount: savoryfood.length,
                           itemBuilder: (context, index) {
                             var savory = savoryfood[index];
                             return GestureDetector(
                               onTap: () {
-                                // เมื่อกดคอนเทนเนอร์จะไปที่หน้าร้านอาหาร
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
                                         (context) => RestaurantPage(
-                                          restaurantData:
-                                              savory, // ส่งข้อมูลร้านไปที่หน้าใหม่
+                                          restaurantData: savory,
                                         ),
                                   ),
                                 );
                               },
                               child: Container(
-                                height: 200, // กำหนดขนาดให้เหมาะสม
-                                width: 200, // กำหนดขนาดให้เหมาะสม
+                                height: 200,
+                                width: 200,
                                 margin: EdgeInsets.all(10.0),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: const Color.fromARGB(255,227,226,226,),
+                                  color: const Color.fromARGB(
+                                    255,
+                                    227,
+                                    226,
+                                    226,
+                                  ),
                                 ),
                                 child: PageView(
-                                  scrollDirection:
-                                      Axis.horizontal, // เลื่อนในแนวนอน
-                                  controller:
-                                      _savoryPageController, // ใช้ controller สำหรับ savory
+                                  scrollDirection: Axis.horizontal,
+                                  controller: _savoryPageController,
                                   onPageChanged: (index) {
                                     setState(() {
                                       _currentIndex = index;
@@ -203,8 +195,8 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   children: [
                                     Container(
-                                      height: 150, // เพิ่มความสูงของ Container
-                                      width: 100, // กำหนดความกว้าง
+                                      height: 150,
+                                      width: 100,
                                       margin: EdgeInsets.all(15.0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
@@ -213,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           // Image
                                           Container(
-                                            height: 170, // ขนาดของรูปภาพ
+                                            height: 170,
                                             width: 200,
                                             decoration: BoxDecoration(
                                               borderRadius:
@@ -236,20 +228,13 @@ class _HomePageState extends State<HomePage> {
                                                 vertical: 5.0,
                                               ),
                                               child: Align(
-                                                alignment:
-                                                    Alignment
-                                                        .center, // จัดข้อความให้ตรงกลาง
+                                                alignment: Alignment.center,
                                                 child: Text(
-                                                  savory['name'], // ชื่อของอาหาร
+                                                  savory['name'],
                                                   style: TextStyle(
-                                                    color:
-                                                        Colors
-                                                            .black, // สีของข้อความ
-                                                    fontWeight:
-                                                        FontWeight
-                                                            .bold, // ตัวหนา
-                                                    fontSize:
-                                                        18, // ขนาดตัวอักษร
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
                                                   ),
                                                 ),
                                               ),
@@ -265,27 +250,25 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                         ListView.builder(
-                          scrollDirection: Axis.horizontal, // เลื่อนในแนวนอน
+                          scrollDirection: Axis.horizontal,
                           itemCount: dessert.length,
                           itemBuilder: (context, index) {
                             var dessertfood = dessert[index];
                             return GestureDetector(
                               onTap: () {
-                                // เมื่อกดคอนเทนเนอร์จะไปที่หน้าร้านอาหาร
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
                                         (context) => DessertPage(
-                                          dessertData:
-                                              dessertfood, // ส่งข้อมูลร้านไปที่หน้าใหม่
+                                          dessertData: dessertfood,
                                         ),
                                   ),
                                 );
                               },
                               child: Container(
-                                height: 200, // กำหนดขนาดให้เหมาะสม
-                                width: 200, // กำหนดขนาดให้เหมาะสม
+                                height: 200,
+                                width: 200,
                                 margin: EdgeInsets.all(10.0),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
@@ -297,10 +280,8 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                                 child: PageView(
-                                  scrollDirection:
-                                      Axis.horizontal, // เลื่อนในแนวนอน
-                                  controller:
-                                      _dessertPageController, // ใช้ controller สำหรับ savory
+                                  scrollDirection: Axis.horizontal,
+                                  controller: _dessertPageController,
                                   onPageChanged: (index) {
                                     setState(() {
                                       _currentIndex = index;
@@ -308,8 +289,8 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   children: [
                                     Container(
-                                      height: 150, // เพิ่มความสูงของ Container
-                                      width: 100, // กำหนดความกว้าง
+                                      height: 150,
+                                      width: 100,
                                       margin: EdgeInsets.all(15.0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
@@ -318,7 +299,7 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           // Image
                                           Container(
-                                            height: 170, // ขนาดของรูปภาพ
+                                            height: 170,
                                             width: 200,
                                             decoration: BoxDecoration(
                                               borderRadius:
@@ -341,20 +322,13 @@ class _HomePageState extends State<HomePage> {
                                                 vertical: 5.0,
                                               ),
                                               child: Align(
-                                                alignment:
-                                                    Alignment
-                                                        .center, // จัดข้อความให้ตรงกลาง
+                                                alignment: Alignment.center,
                                                 child: Text(
-                                                  dessertfood['name'], // ชื่อของอาหาร
+                                                  dessertfood['name'],
                                                   style: TextStyle(
-                                                    color:
-                                                        Colors
-                                                            .black, // สีของข้อความ
-                                                    fontWeight:
-                                                        FontWeight
-                                                            .bold, // ตัวหนา
-                                                    fontSize:
-                                                        18, // ขนาดตัวอักษร
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
                                                   ),
                                                 ),
                                               ),
