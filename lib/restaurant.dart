@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class RestaurantPage extends StatefulWidget {
   final dynamic restaurantData;
@@ -109,6 +110,15 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'ไม่สามารถเปิดลิงก์ได้: $url';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -167,7 +177,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
             ),
 
             SizedBox(height: 20),
-            Row(
+             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -175,10 +185,16 @@ class _RestaurantPageState extends State<RestaurantPage> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Expanded(
-                  child: Text(
-                    widget.restaurantData['address'],
-                    style: TextStyle(fontSize: 16),
-                    softWrap: true,
+                  child: GestureDetector(
+                    onTap: () => _launchURL(widget.restaurantData['address']),
+                    child: Text(
+                      widget.restaurantData['address'],
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ],

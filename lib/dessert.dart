@@ -1,7 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class DessertPage extends StatefulWidget {
   final dynamic dessertData;
@@ -108,6 +108,15 @@ class _DessertPageState extends State<DessertPage> {
     }
   }
 
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'ไม่สามารถเปิดลิงก์ได้: $url';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -174,10 +183,16 @@ class _DessertPageState extends State<DessertPage> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Expanded(
-                  child: Text(
-                    widget.dessertData['address'],
-                    style: TextStyle(fontSize: 16),
-                    softWrap: true,
+                  child: GestureDetector(
+                    onTap: () => _launchURL(widget.dessertData['address']),
+                    child: Text(
+                      widget.dessertData['address'],
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ],
