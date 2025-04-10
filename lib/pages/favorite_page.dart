@@ -12,10 +12,11 @@ class FavoritePage extends StatefulWidget {
 }
 
 class _FavoritePageState extends State<FavoritePage> {
-  List<dynamic> favorite = [];
+  List<dynamic> favorite = []; // รายการที่ผู้ใช้เพิ่มในรายการโปรด
 
   Future<void> fetchData() async {
     try {
+      // ดึงข้อมูล favorite
       var response = await http.get(Uri.parse('http://10.0.2.2:3000/favorite'));
       if (response.statusCode == 200) {
         String foodBody = utf8.decode(response.bodyBytes);
@@ -33,6 +34,7 @@ class _FavoritePageState extends State<FavoritePage> {
 
   Future<void> deleteFromFavorites(String id) async {
     try {
+      // ลบรายการโปรด
       var response = await http.delete(
         Uri.parse('http://10.0.2.2:3000/favorite/$id'),
       );
@@ -47,7 +49,7 @@ class _FavoritePageState extends State<FavoritePage> {
       print('Error: $e');
     }
   }
-
+   // เมื่อคลิกที่รายการโปรด จะนำไปยังหน้ารายละเอียดตาม category
   void navigateToPage(dynamic restaurant) {
     if (restaurant['category'] == 'savoryfood') {
       Navigator.push(
@@ -69,7 +71,7 @@ class _FavoritePageState extends State<FavoritePage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchData(); 
   }
 
   @override
@@ -93,10 +95,10 @@ class _FavoritePageState extends State<FavoritePage> {
                 itemBuilder: (context, index) {
                   var restaurant = favorite[index];
                   return Dismissible(
-                    key: Key(restaurant['id'].toString()),
-                    direction: DismissDirection.endToStart,
+                    key: Key(restaurant['id'].toString()), // key สำหรับลบรายการ
+                    direction: DismissDirection.endToStart, // ปัดจากขวาไปซ้าย
                     onDismissed: (direction) {
-                      deleteFromFavorites(restaurant['id']);
+                      deleteFromFavorites(restaurant['id']); // ลบรายการเมื่อปัด
                     },
                     background: Container(
                       color: Colors.red,
@@ -110,7 +112,7 @@ class _FavoritePageState extends State<FavoritePage> {
                     ),
                     child: GestureDetector(
                       onTap: () {
-                        navigateToPage(restaurant);
+                        navigateToPage(restaurant); // ไปยังหน้ารายละเอียด
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(
@@ -132,6 +134,7 @@ class _FavoritePageState extends State<FavoritePage> {
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
+                              // รูปภาพร้านอาหารหรือร้านขนมหวาน
                               Container(
                                 height: 80,
                                 width: 80,
@@ -144,6 +147,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                 ),
                               ),
                               SizedBox(width: 20),
+                              // ชื่อร้าน
                               Expanded(
                                 child: Text(
                                   restaurant['name'],

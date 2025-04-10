@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DessertPage extends StatefulWidget {
-  final dynamic dessertData;
+  final dynamic dessertData; // รับข้อมูลร้านขนมหวานที่ส่งมาจากหน้าก่อนหน้า
   const DessertPage({Key? key, required this.dessertData}) : super(key: key);
 
   @override
@@ -12,11 +12,12 @@ class DessertPage extends StatefulWidget {
 }
 
 class _DessertPageState extends State<DessertPage> {
-  List<dynamic> dessert = [];
-  bool isFavorite = false;
+  List<dynamic> dessert = []; // เก็บข้อมูลร้านขนมหวานจาก API
+  bool isFavorite = false; // ใช้เช็คว่าร้านนี้อยู่ใน favorite แล้วหรือยัง
 
   Future<void> fetchData() async {
     try {
+      // ดึงข้อมูลร้านขนมหวาน
       var dessertResponse = await http.get(
         Uri.parse('http://10.0.2.2:3000/dessert'),
       );
@@ -33,7 +34,7 @@ class _DessertPageState extends State<DessertPage> {
       print(e);
     }
   }
-
+  // เพิ่มรายการร้านขนมหวานในรายการโปรด โดยการ POST
   Future<void> addToFavorites() async {
     final favoriteData = {
       'name': widget.dessertData['name'],
@@ -86,7 +87,7 @@ class _DessertPageState extends State<DessertPage> {
       ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด')));
     }
   }
-
+  // ตรวจสอบว่าร้านนี้ถูกเพิ่มไปในรายการโปรดแล้วหรือยัง
   Future<void> checkIfFavorite() async {
     try {
       final response = await http.get(
@@ -108,6 +109,7 @@ class _DessertPageState extends State<DessertPage> {
     }
   }
 
+  // ฟังก์ชันเปิดลิงก์ Google Map หรือเว็บไซต์
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -120,8 +122,8 @@ class _DessertPageState extends State<DessertPage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
-    checkIfFavorite();
+    fetchData(); 
+    checkIfFavorite(); // เช็คว่าร้านนี้เป็นรายการโปรดมั้ย
   }
 
   @override
@@ -129,7 +131,7 @@ class _DessertPageState extends State<DessertPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.dessertData['name'],
+          widget.dessertData['name'], //ชื่อร้านขนมหวาน
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red,
@@ -140,6 +142,7 @@ class _DessertPageState extends State<DessertPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // รูปภาพร้านขนมหวาน
             Container(
               width: double.infinity,
               height: 250,
@@ -152,11 +155,13 @@ class _DessertPageState extends State<DessertPage> {
               ),
             ),
             SizedBox(height: 20),
+            // รายละเอียดร้านขนมวาน
             Text(
               widget.dessertData['description'],
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
+            // เวลาที่ร้านเปิดทำการ
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -173,8 +178,8 @@ class _DessertPageState extends State<DessertPage> {
                 ),
               ],
             ),
-
             SizedBox(height: 20),
+            // ลิงก์ address ของร้านนั้นๆ
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -200,6 +205,7 @@ class _DessertPageState extends State<DessertPage> {
           ],
         ),
       ),
+      // ปุ่มเพิ่มไปในรายการโปรด(แต่ถ้าอยู่ในรายการโปรดแล้ว จะไม่ขึ้นให้กดเพิ่ม)
       bottomNavigationBar:
           isFavorite
               ? null

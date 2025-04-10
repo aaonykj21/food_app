@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RestaurantPage extends StatefulWidget {
-  final dynamic restaurantData;
+  final dynamic restaurantData; // รับข้อมูลร้านอาหารที่ส่งมาจากหน้าก่อนหน้า
 
   const RestaurantPage({Key? key, required this.restaurantData})
     : super(key: key);
@@ -14,11 +14,12 @@ class RestaurantPage extends StatefulWidget {
 }
 
 class _RestaurantPageState extends State<RestaurantPage> {
-  List<dynamic> savoryfood = [];
-  bool isFavorite = false;
+  List<dynamic> savoryfood = []; // เก็บข้อมูลร้านอาหารจาก API
+  bool isFavorite = false; // ใช้เช็คว่าร้านนี้อยู่ใน favorite แล้วหรือยัง
 
   Future<void> fetchData() async {
     try {
+       // ดึงข้อมูลร้านอาหาร
       var response = await http.get(
         Uri.parse('http://10.0.2.2:3000/savoryfood'),
       );
@@ -36,6 +37,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
+  // เพิ่มรายการร้านอาหารในรายการโปรด โดยการ POST
   Future<void> addToFavorites() async {
     final favoriteData = {
       'name': widget.restaurantData['name'],
@@ -88,7 +90,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
       ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด')));
     }
   }
-
+  // ตรวจสอบว่าร้านนี้ถูกเพิ่มไปในรายการโปรดแล้วหรือยัง
   Future<void> checkIfFavorite() async {
     try {
       final response = await http.get(
@@ -109,7 +111,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
       print("Error checking favorite: $e");
     }
   }
-
+  // ฟังก์ชันเปิดลิงก์ Google Map หรือเว็บไซต์
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -123,7 +125,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
   void initState() {
     super.initState();
     fetchData();
-    checkIfFavorite();
+    checkIfFavorite(); // เช็คว่าร้านนี้เป็นรายการโปรดมั้ย
   }
 
   @override
@@ -131,7 +133,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.restaurantData['name'],
+          widget.restaurantData['name'], //ชื่อร้านอาหาร
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red,
@@ -142,6 +144,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // รูปภาพร้านอาหาร
             Container(
               width: double.infinity,
               height: 250,
@@ -154,11 +157,13 @@ class _RestaurantPageState extends State<RestaurantPage> {
               ),
             ),
             SizedBox(height: 20),
+            // รายละเอียดร้านอาหาร
             Text(
               widget.restaurantData['description'],
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
+            // เวลาที่ร้านเปิดทำการ
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -175,8 +180,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 ),
               ],
             ),
-
             SizedBox(height: 20),
+            // ลิงก์ address ของร้านนั้นๆ
              Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -202,6 +207,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
           ],
         ),
       ),
+      // ปุ่มเพิ่มไปในรายการโปรด(แต่ถ้าอยู่ในรายการโปรดแล้ว จะไม่ขึ้นให้กดเพิ่ม)
       bottomNavigationBar:
           isFavorite
               ? null

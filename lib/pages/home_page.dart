@@ -13,15 +13,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController _controller = PageController();
-  final PageController _savoryPageController = PageController();
-  final PageController _dessertPageController = PageController();
-  int _currentIndex = 0;
-  List<dynamic> savoryfood = [];
-  List<dynamic> dessert = [];
+  final PageController _controller = PageController();  // ควบคุม PageView(รูปภาพด้านบน)
+  final PageController _savoryPageController = PageController(); // ควบคุม PageView ของร้านอาหาร
+  final PageController _dessertPageController = PageController(); // ควบคุม PageView ของร้านขนมหวาน
+  int _currentIndex = 0; // เก็บ index ของ Page ปัจจุบัน
+  List<dynamic> savoryfood = []; // เก็บข้อมูลร้านอาหารจาก API
+  List<dynamic> dessert = []; // เก็บข้อมูลร้านขนมหวานจาก API
 
   Future<void> fetchData() async {
     try {
+      // ดึงข้อมูลร้านอาหาร
       var response = await http.get(
         Uri.parse('http://10.0.2.2:3000/savoryfood'),
       );
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
       } else {
         throw Exception("Failed to load products");
       }
+      // ดึงข้อมูลร้านขนมหวาน
       var dessertResponse = await http.get(
         Uri.parse('http://10.0.2.2:3000/dessert'),
       );
@@ -54,10 +56,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
-    _startAutoSlider();
+    fetchData(); // ดึงข้อมูลเมื่อเปิดหน้า
+    _startAutoSlider(); // เริ่มสไลด์รูปภาพอัตโนมัติ
   }
-
+  // ฟังก์ชันเปลี่ยนรูปภาพใน PageView(ด้านบน)
   void _startAutoSlider() {
     Timer.periodic(Duration(seconds: 3), (Timer timer) {
       if (_controller.hasClients) {
@@ -83,6 +85,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
+          // รูปภาพถนนบรรทัดทองที่สามารถเลื่อนอัตโนมัติได้
           Align(
             child: Container(
               height: 250,
@@ -141,6 +144,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          // TabBar เปลี่ยนหน้า(อาหาร กับ ขนมหวาน)
           Expanded(
             child: DefaultTabController(
               length: 2,
@@ -155,13 +159,14 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: TabBarView(
                       children: [
+                        // รายการร้านอาหารแต่ละร้าน
                         ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: savoryfood.length,
                           itemBuilder: (context, index) {
                             var savory = savoryfood[index];
                             return GestureDetector(
-                              onTap: () {
+                              onTap: () { //เมื่อกดที่ร้านอาหารร้านไหนก็ตาม จะนำไปที่หน้ารายละเอียดของร้านอาหารนั้นๆ
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -249,13 +254,14 @@ class _HomePageState extends State<HomePage> {
                             );
                           },
                         ),
+                        // รายการร้านขนมหวานแต่ละร้าน
                         ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: dessert.length,
                           itemBuilder: (context, index) {
                             var dessertfood = dessert[index];
                             return GestureDetector(
-                              onTap: () {
+                              onTap: () { //เมื่อกดที่ร้านอาหารร้านไหนก็ตาม จะนำไปที่หน้ารายละเอียดของร้านอาหารนั้นๆ
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
